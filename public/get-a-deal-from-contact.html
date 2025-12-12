@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Breezy Admin Panel</title>
+
+
+	<!-- Reset -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/modern-normalize@1.1.0/modern-normalize.min.css">
+
+	<!-- Google fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+
+	<!-- Main stylesheet -->
+	<link rel="stylesheet" href="app.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+
+<div>
+  <h2>Deals for Contact</h2>
+  <input type="text" id="contactIdInput" placeholder="Enter Contact ID">
+  <button id="fetchDealsBtn">Fetch Deals</button>
+
+  <div id="loadingDeals" style="display:none;">Loading...</div>
+  <div id="errorDeals" style="display:none;color:red;"></div>
+
+  <table id="dealsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Deal Name</th>
+        <th>Amount</th>
+        <th>Deal Stage</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+  document.getElementById("fetchDealsBtn").addEventListener("click", async () => {
+    const contactId = document.getElementById("contactIdInput").value;
+    if (!contactId) return alert("Please enter a contact ID");
+
+    document.getElementById("loadingDeals").style.display = "block";
+    document.getElementById("errorDeals").style.display = "none";
+    document.getElementById("dealsTable").style.display = "none";
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/contacts/${contactId}/deals`);
+      const data = await response.json();
+
+      if (!Array.isArray(data.results)) {
+        throw new Error("Invalid response: " + JSON.stringify(data));
+      }
+
+      const rowsHtml = data.results.map(d => `
+        <tr>
+          <td>${d.properties.dealname || ''}</td>
+          <td>${d.properties.amount || ''}</td>
+          <td>${d.properties.dealstage || ''}</td>
+        </tr>
+      `).join('');
+
+      document.querySelector("#dealsTable tbody").innerHTML = rowsHtml;
+      document.getElementById("dealsTable").style.display = "";
+    } catch (err) {
+      document.getElementById("errorDeals").textContent = "Failed to fetch deals: " + err.message;
+      document.getElementById("errorDeals").style.display = "block";
+    } finally {
+      document.getElementById("loadingDeals").style.display = "none";
+    }
+  });
+</script>
+
+</script>
+
+
+	
+    </body>
+    </html>

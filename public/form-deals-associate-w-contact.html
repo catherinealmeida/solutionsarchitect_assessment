@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Deal & Associate with Contact</title>
+  <style>
+    form {
+      width: 350px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Create Deal & Associate with Contact</h2>
+
+  <form id="dealForm">
+    <!-- CONTACT ID -->
+    <label for="contactId">Contact ID (HubSpot)</label>
+    <input type="text" id="contactId" placeholder="Enter HubSpot contact ID" required />
+
+    <!-- DEAL FIELDS -->
+    <label for="dealname">Deal Name</label>
+    <input type="text" id="dealname" placeholder="Example: Premium Subscription" required>
+
+    <label for="amount">Amount (€)</label>
+    <input type="number" id="amount" placeholder="1000" required>
+
+    <label for="dealstage">Deal Stage</label>
+    <select id="dealstage" required>
+      <option value="">Select stage</option>
+      <option value="appointmentscheduled">Appointment Scheduled</option>
+      <option value="qualifiedtobuy">Qualified to Buy</option>
+      <option value="presentationscheduled">Presentation Scheduled</option>
+      <option value="decisionmakerboughtin">Decision Maker Bought-In</option>
+      <option value="contractsent">Contract Sent</option>
+      <option value="closedwon">Closed Won</option>
+      <option value="closedlost">Closed Lost</option>
+    </select>
+
+    <button type="submit">Create Deal</button>
+  </form>
+
+  <p id="result"></p>
+
+  
+  <script>
+    document.getElementById("dealForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const payload = {
+        contactId: document.getElementById("contactId").value,
+        dealProperties: {
+          dealname: document.getElementById("dealname").value,
+          amount: document.getElementById("amount").value,
+          dealstage: document.getElementById("dealstage").value,
+          pipeline: "default"
+        }
+      };
+
+      try {
+        const response = await fetch("http://localhost:3001/api/deals", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          document.getElementById("result").innerText =
+            "Deal created & associated — ID: " + result.dealId;
+        } else {
+          document.getElementById("result").innerText =
+            "Error: " + (result.details?.message || "Failed");
+        }
+      } catch (err) {
+        document.getElementById("result").innerText = "Error: " + err.message;
+      }
+    });
+  </script>
+
+</body>
+</html>

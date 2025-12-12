@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Breezy Admin Panel</title>
+
+
+	<!-- Reset -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/modern-normalize@1.1.0/modern-normalize.min.css">
+
+	<!-- Google fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+
+	<!-- Main stylesheet -->
+	<link rel="stylesheet" href="app.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+<!-- Fetch contacts from HubSpot Portal in table-->
+	<div class="dashboard">
+<h2>HubSpot Sync</h2>
+ <h2>HubSpot Contacts</h2>
+    <div id="loading" class="loading" style="display:none;">Loading contacts...</div>
+    <div id="error" class="msg" style="display:none;"></div>
+    <table id="contactsTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Job Title</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+	</div>
+
+	 <script>
+async function fetchContacts () {
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("error").style.display = "none";
+  document.getElementById("contactsTable").style.display = "none";
+  
+  try {
+    const response = await fetch('http://localhost:3001/api/contacts');
+    const result = await response.json();
+
+    const contacts = result.results;
+
+    if (!Array.isArray(contacts)) {
+      throw new Error("Response is not an array: " + JSON.stringify(result));
+    }
+
+    const rowsHtml = contacts.map(c => `
+      <tr>
+        <td>${c.properties.firstname || ''}</td>
+        <td>${c.properties.lastname || ''}</td>
+        <td>${c.properties.email || ''}</td>
+        <td>${c.properties.jobtitle || ''}</td>
+        <td>${c.properties.company || ''}</td>
+      </tr>
+    `).join('');
+
+    document.querySelector("#contactsTable tbody").innerHTML = rowsHtml;
+    document.getElementById("contactsTable").style.display = "";
+  } catch (err) {
+    document.getElementById("error").textContent = "Failed to load contacts: " + err.message;
+    document.getElementById("error").style.display = "block";
+  } finally {
+    document.getElementById("loading").style.display = "none";
+  }
+}
+
+window.onload = fetchContacts;
+</script>
+
+
+	
+    </body>
+    </html>

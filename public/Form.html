@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+
+<form id="createContactForm">
+  <input type="text" id="firstname" placeholder="First name" required>
+  <input type="text" id="lastname" placeholder="Last name">
+  <input type="email" id="email" placeholder="Email" required>
+
+  <button type="submit">Create Contact</button>
+</form>
+
+<div id="createResult"></div>
+
+<script>
+document.getElementById("createContactForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const payload = {
+    firstname: document.getElementById("firstname").value,
+    lastname: document.getElementById("lastname").value,
+    email: document.getElementById("email").value
+  };
+
+  try {
+    const res = await fetch("http://localhost:3001/api/contacts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    document.getElementById("createResult").innerText =
+      "Created contact ID: " + (data.id || JSON.stringify(data));
+  } catch (err) {
+    document.getElementById("createResult").innerText =
+      "Error: " + err.message;
+  }
+});
+</script>
+
+	
+    </body>
+    </html>
